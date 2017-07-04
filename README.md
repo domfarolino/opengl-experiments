@@ -16,7 +16,9 @@ There are two valid ways to install SDL2 on macOS. The first is seamless and req
 [SDL download page](https://www.libsdl.org/download-2.0.php) and downloading the `.dmg` file. Run the `.dmg` file and follow the very simple
 accompanying `ReadMe.txt`.
 
-You can also build it "the Unix way" by following [these](https://wiki.libsdl.org/Installation#Mac_OS_X) instructions but probably not necessary.
+You can also build it "the Unix way" by cloning the SDL2 source via `hg clone https://hg.libsdl.org/SDL` and following
+[these](https://wiki.libsdl.org/Installation#Mac_OS_X) instructions, but this is probably not necessary. To uninstall
+"the Unix way" just run `sudo make uninstall` in the SDL source directory.
 
 ## Installing GLEW (macOS)
 
@@ -31,3 +33,16 @@ This was as simple as:
  - Following build instructions `cd glew-2.0.0 && make && sudo make install && make clean`
 
 **As the tutorial states in the "Context creation" page, ensure the GL/glew.h header appears before OpenGL headers or the library used for window creation (SDL)**
+
+# Working more closely with SDL
+
+Since SDL is pretty cool and very powerful I'm also following some tutorials and learning more about that library alongside OpenGL. Specifically I've
+been watching [these](https://www.youtube.com/playlist?list=PL1H1sBF1VAKXMz8kETLHRo1LwnvB08Q2J) tutorial videos so any "complex" SDL-specific code found
+in the examples in this repository that do not come from https://open.gl are either from that playlist or other tutorials. Regardless, SDL seems to have
+very good documentation so it shouldn't take long to figure out what something does.
+
+# Portability
+
+It would be nice to make the executables produced by the code in this repository portable, at least to some extent. I cannot figure out how to do this
+as every attempt I make toward statically linking the SDL2 stuff to my executable fails to run on macOS without SDL2 installed, giving me a nasty rpath error.
+This will need some further investigation. For now, let's just focus on development.
