@@ -43,6 +43,15 @@ very good documentation so it shouldn't take long to figure out what something d
 
 # Portability
 
-It would be nice to make the executables produced by the code in this repository portable, at least to some extent. I cannot figure out how to do this
-as every attempt I make toward statically linking the SDL2 stuff to my executable fails to run on macOS without SDL2 installed, giving me a nasty rpath error.
-This will need some further investigation. For now, let's just focus on development.
+I've had some success in making the binaries portable. So when compiling the application on macOS, apparently the binary will
+look for the `SDL2.framework` naturally in `/Library/Frameworks/`, however this requires all users who run the binary to have
+the library installed and in that location. On macOS, binaries locate dynamic libraries via `@rpath` paths (there also exist
+`@executable_path` and `@load_path`) so what we can do is just ship the `SDL2.framework` library somewhere alongside the binary
+and change the rpath with either `install_name_tool` or with GCC flags. I opted to use the GCC flag option which can be seen in
+the Makefile. This allows the binary to search for the `SDL2.framework` library one directory level up from the binary.
+
+## References
+
+ - https://wincent.com/wiki/%40executable_path%2C_%40load_path_and_%40rpath
+ - https://stackoverflow.com/questions/6562403/
+ - https://stackoverflow.com/questions/9263256/
