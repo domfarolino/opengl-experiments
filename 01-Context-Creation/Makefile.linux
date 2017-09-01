@@ -1,0 +1,2 @@
+main:
+	g++ 01-OpenGL-Context.cpp -lSDL2 `sdl2-config --cflags` -lGLEW
