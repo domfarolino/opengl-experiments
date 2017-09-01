@@ -1,4 +1,3 @@
-*.out
 *.dSYM
 .DS_Store
 SDL2.framework/
