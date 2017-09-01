@@ -20,6 +20,12 @@ You can also build it "the Unix way" by cloning the SDL2 source via `hg clone ht
 [these](https://wiki.libsdl.org/Installation#Mac_OS_X) instructions, but this is probably not necessary. To uninstall
 "the Unix way" just run `sudo make uninstall` in the SDL source directory.
 
+## Installing SDL2 (Ubuntu)
+
+I got SDL2 installed on my Ubuntu machine simply by using `sudo apt-get install libsdl2-dev`. It is then recommended that you adjust the include
+path in your compiler flags so that you can reference `SDL2` code via `#include "SDL.h"` instead of `#include "SDL2/SDL.h"`. For more information
+see https://stackoverflow.com/a/24480415.
+
 ## Installing GLEW (macOS)
 
 Apparently GLEW isn't even necessary on macOS
@@ -31,6 +37,8 @@ This was as simple as:
  - Downloading the latest version of the library via `curl -LOk https://github.com/nigels-com/glew/releases/download/glew-2.0.0/glew-2.0.0.zip`
  - Unzipping it `unzip glew-2.0.0.zip`
  - Following build instructions `cd glew-2.0.0 && make && sudo make install && make clean`
+ - **For some reason on Ubuntu, I ALSO have to have the glew-dev package installed by doing `sudo apt-get install libglew-dev`**. I'm not sure
+    why both are necessary so I should probably look into it?
 
 **As the tutorial states in the "Context creation" page, ensure the GL/glew.h header appears before OpenGL headers or the library used for window creation (SDL)**
 
