@@ -1,12 +1,12 @@
 UNAME := $(shell uname)
+CPP=g++
+SRCDIR = ./
 
 ifeq ($(UNAME), Linux)
-LDFLAGS=
-FLAGS= -lSDL2 `sdl2-config --cflags` -lGLEW -g -std=c++0x
+  CFLAGS= -lSDL2 `sdl2-config --cflags` -lGLEW -g -std=c++0x
 else
-LDFLAGS="-Wl,-rpath,../"
-FLAGS= -I/Library/Frameworks/SDL2.Framework/headers -framework SDL2 -L/usr/local/lib -lGLEW -g -std=c++0x
+  CFLAGS= -I/Library/Frameworks/SDL2.Framework/headers -framework SDL2 -L/usr/local/lib -lGLEW -Wl,-rpath,../ -g -std=c++0x
 endif
 
 main:
-	g++ 02-Drawing.cpp $(LDFLAGS) $(FLAGS)
+	g++ 02-Drawing.cpp $(CFLAGS)

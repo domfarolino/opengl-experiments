@@ -7,6 +7,3 @@ ifeq ($(UNAME), Linux)
 else
   CFLAGS= -I/Library/Frameworks/SDL2.Framework/headers -framework SDL2 -L/usr/local/lib -lGLEW -Wl,-rpath,../ -g
 endif
-
-main:
-	g++ 01-OpenGL-Context.cpp $(CFLAGS)
