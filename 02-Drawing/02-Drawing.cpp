@@ -35,10 +35,6 @@ int main() {
   glewExperimental = GL_TRUE;
   glewInit();
 
-  GLuint vao;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
   if (!window) {
     std::cout << "Could not open the window: " << SDL_GetError() << std::endl;
     return 1;
@@ -176,6 +172,10 @@ int main() {
 
   glLinkProgram(shaderProgram);
   glUseProgram(shaderProgram); // like a VBO, only one program can be active at a time
+
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
 
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
