@@ -12,30 +12,63 @@ void logEvent(SDL_Event event) {
 }
 
 void computeVertices() {
+  /**
+   * OpenGL expects all vertices as a single array
+   * so we must pack all the attributes for a single
+   * vertex together, and then understand the format
+   * of our array. In the following array we have only
+   * x & y attributes for our vertices, so we can format
+   * our array as follows, noting what exactly this means.
+   */
   float vertices[] = {
      0.0f,   0.5f, // Vertex 1
      0.5f,  -0.5f, // Vertex 2
     -0.5f,  -0.5f  // Vertex 3
   };
 
+  /**
+   * We want to upload the vertex data we've created, to our
+   * graphics card. GPU memory is super fast and we don't want
+   * to have to keep sending data to it so we'll send it right
+   * away so it can handle it.
+   */
+
   // Create Vertex Buffer Object (VBO)
-  // GLuint is a platform-independant `unsigned int`
+  // GLuint is a platform-independent `unsigned int`
+  // OpenGL handles the buffer memory for us, so we get
+  // an int representing the buffer, not a pointer
   GLuint vbo;
   glGenBuffers(1, &vbo); // Generates our buffer
 
   // Make the VBO be the active object so we can upload data to it
   glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
-  // Now with our VBO as the active array buffer, we can copy vertex data to it
+  /**
+   * Now with our VBO as the active array buffer, we can copy vertex data to it
+   * Final param depends on usage of vertex data. This determines what kind of memory
+   * the data will be stored in on the GPU. Can help us make certain tradeoffs or optimizations
+   */
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-  // Create basic vertex shader source
+  /**
+   * The vertex shader is a small program that runs on the graphics card
+   * and explains to the GPU the format in which we've defined our vertex
+   * array. A change in or vertex array attribute format will require a change
+   * in the vertex (and probably fragment) shader. The vertex shader is responsible
+   * for taking in the vertices in the vertex array and outputting their final position
+   * in device coordinates, and spitting out any data the fragment shader will require.
+   */
   const char* vertexSource = R"glsl(
     #version 150 core
 
+    // This tell us there is one attribute to each
+    // vertex. The number after vec (2) tells us that
+    // this attribute has two values (as we've formatted array)
     in vec2 position;
 
     void main() {
+      // Final position is assigned to gl_Position for built in stuff
+      // Last value must be 1.0 for some reason, not sure about last one?
       gl_Position = vec4(position, 0.0, 1.0);
     }
   )glsl";
@@ -60,7 +93,12 @@ void computeVertices() {
     return;
   }
 
-  // Create basic fragment shader source
+  /**
+   * The fragment shader takes the information output from the
+   * vertex shader, called fragments. Like vertex shader, it has
+   * a single mandatory output = final color of fragment. This shader
+   * will just output a single color every time.
+   */
   const char* fragmentSource = R"glsl(
     #version 150 core
 
@@ -93,7 +131,6 @@ void computeVertices() {
    * connection to each other. In order to to use them together in the graphics
    * pipeline, we have to create a shader program consisting of these two shaders.
    */
-
    GLuint shaderProgram = glCreateProgram();
    glAttachShader(shaderProgram, vertexShader);
    glAttachShader(shaderProgram, fragmentShader);
@@ -107,6 +144,15 @@ void computeVertices() {
 
    glLinkProgram(shaderProgram);
    glUseProgram(shaderProgram); // like a VBO, only one program can be active at a time
+
+  GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glEnableVertexAttribArray(posAttrib);
+
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
+  //glDrawArrays(GL_TRIANGLES, 0, 3);
 }
 
 int main() {
