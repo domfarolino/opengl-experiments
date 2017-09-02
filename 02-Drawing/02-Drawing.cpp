@@ -159,9 +159,9 @@ int main() {
    * connection to each other. In order to to use them together in the graphics
    * pipeline, we have to create a shader program consisting of these two shaders.
    */
-   GLuint shaderProgram = glCreateProgram();
-   glAttachShader(shaderProgram, vertexShader);
-   glAttachShader(shaderProgram, fragmentShader);
+  GLuint shaderProgram = glCreateProgram();
+  glAttachShader(shaderProgram, vertexShader);
+  glAttachShader(shaderProgram, fragmentShader);
 
   /**
    * The line of code below is used to specify which output is written to
