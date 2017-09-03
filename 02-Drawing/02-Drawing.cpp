@@ -1,7 +1,7 @@
 #include <iostream>
 #include <string>
-#include <cstdlib>
-#include <ctime>
+//#include <cstdlib>
+//#include <ctime>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -56,11 +56,32 @@ int main() {
    * an RGB aspect to each vertex as well. As a result, we'll
    * see the code that explains to OpenGL the format of each
    * vertex accommodate this.
+   *
+   * We can write our vertex array out in the exact order
+   * in which we'll draw vertices to the screen, but this can
+   * be wasteful. For example, to draw a rectangle from two triangles
+   * (our GL primitive), we'll be duplicating two vertices. We can instead
+   * just write out the unique vertices we'll need, and use an element buffer
+   * object to refer to these unique vertices when drawing. This allows us to
+   * reuse vertices instead of duplicate their memory, which can be really expensive
+   * for complex 3D drawings
    */
+  /*float vertices[] = {
+    // Triangle 1
+    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Vertex 1 Top left
+     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Vertex 2 Top right
+     0.5f, -0.5f, 0.0f, 0.0f, 1.1f, // Vertex 3 Bottom right
+
+    // Triangle 2
+    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Vertex 1 Top left (duplicate vertex for second triangle)
+    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f, // Vertex 2 Bottom left
+     0.5f, -0.5f, 0.0f, 0.0f, 1.0f  // Vertex 3 Bottom right (duplicate vertex for second triangle)
+  };*/
   float vertices[] = {
-     0.0f,   0.5f, 1.0f, 0.0f, 0.0f, // Vertex 1 Red
-     0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // Vertex 2 Green
-    -0.5f,  -0.5f, 0.0f, 0.0f, 1.0f  // Vertex 3 Blue
+    -0.5f,  0.5f, 1.0f, 0.0f, 0.0f, // Top Left
+     0.5f,  0.5f, 0.0f, 1.0f, 0.0f, // Top Right
+     0.5f, -0.5f, 0.0f, 0.0f, 1.0f, // Bottom right
+    -0.5f, -0.5f, 1.0f, 1.0f, 1.0f  // Bottom left
   };
 
   /**
@@ -86,6 +107,21 @@ int main() {
    * the data will be stored in on the GPU. Can help us make certain tradeoffs or optimizations
    */
   glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+
+  /**
+   * We can use an element buffer object to store indices of vertices that are
+   * bound to an active vertex buffer object (GL_ARRAY_BUFFER). We could simply
+   * refer to drawing these indices in the natural order we've defined them in our
+   * vertex array, or we can draw complex shapes out of the vertices we've defined
+   * in our vertex array. The element buffer object allows us to reuse these defined
+   * vertices making our application more memory efficient
+   */
+  GLuint elements[] = {0, 1, 2, 2, 3, 0}; // reuse already defined vertices instead of duplicate memory
+
+  GLuint ebo;
+  glGenBuffers(1, &ebo);
+  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+  glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(elements), elements, GL_STATIC_DRAW);
 
   /**
    * The vertex shader is a small program that runs on the graphics card
@@ -243,7 +279,8 @@ int main() {
       if (numEvents > 2) running = false;
     }
 
-    glDrawArrays(GL_TRIANGLES, 0, 3);
+    //glDrawArrays(GL_TRIANGLES, 0, 6);
+    glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0); // Draw using element buffer object
 
     /**
      * Here if we want, we can grab a reference to the fragment shader's uniform
