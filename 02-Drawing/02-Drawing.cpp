@@ -50,14 +50,17 @@ int main() {
    * OpenGL expects all vertices as a single array
    * so we must pack all the attributes for a single
    * vertex together, and then understand the format
-   * of our array. In the following array we have only
-   * x & y attributes for our vertices, so we can format
-   * our array as follows, noting what exactly this means.
+   * of our array. In the following array we've made
+   * our vertices more complex, carrying not only x & y
+   * device-coordinate positions with them, but we're adding
+   * an RGB aspect to each vertex as well. As a result, we'll
+   * see the code that explains to OpenGL the format of each
+   * vertex accommodate this.
    */
   float vertices[] = {
-     0.0f,   0.5f, // Vertex 1
-     0.5f,  -0.5f, // Vertex 2
-    -0.5f,  -0.5f  // Vertex 3
+     0.0f,   0.5f, 1.0f, 0.0f, 0.0f, // Vertex 1 Red
+     0.5f,  -0.5f, 0.0f, 1.0f, 0.0f, // Vertex 2 Green
+    -0.5f,  -0.5f, 0.0f, 0.0f, 1.0f  // Vertex 3 Blue
   };
 
   /**
@@ -95,12 +98,25 @@ int main() {
   const char* vertexSource = R"glsl(
     #version 150 core
 
-    // This tell us there is one attribute to each
-    // vertex. The number after vec (2) tells us that
-    // this attribute has two values (as we've formatted array)
+    // This vector accommodates the position (x & y)
+    // data for each vertex. The number after the vector
+    // (2) tells us that that attribute has two values.
     in vec2 position;
 
+    // This vector accommodates the color (r, g, b)
+    // data for each vertex.
+    in vec3 color;
+
+    // The vertex shader can take in data and simply act
+    // as a pass-through to get this data to the fragment
+    // shader. That's what we're doing here with the color
+    // data that comes in from the vertex data. We want to
+    // give it to the fragment shader, so we'll output it.
+    out vec3 Color;
+
     void main() {
+      Color = color; // set output for fragment shader
+
       // Final position is assigned to gl_Position for built in stuff
       // Last value must be 1.0 for some reason, not sure about last one?
       gl_Position = vec4(position, 0.0, 1.0);
@@ -143,10 +159,16 @@ int main() {
   const char* fragmentSource = R"glsl(
     #version 150 core
 
-    uniform vec3 triangleColor;
+    // Get ready to accept the color data
+    // passed in by the vertex shader. The
+    // name of this input MUST be the same as
+    // the name of the vertex shader output.
+    in vec3 Color;
+
+    // uniform vec3 triangleColor; // if we decide to use uniform to change color
     out vec4 outColor;
     void main() {
-      outColor = vec4(triangleColor, 1);
+      outColor = vec4(Color, 1);
     }
   )glsl";
   
@@ -199,8 +221,12 @@ int main() {
    * and the first (and only) input definition will have the number 0.
    */
   GLint posAttrib = glGetAttribLocation(shaderProgram, "position"); // 0
-  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
+  glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 5*sizeof(float), 0);
   glEnableVertexAttribArray(posAttrib);
+
+  GLint colorAttrib = glGetAttribLocation(shaderProgram, "color");
+  glVertexAttribPointer(colorAttrib, 3, GL_FLOAT, GL_FALSE, 5*sizeof(float), (void*)(2*sizeof(float)));
+  glEnableVertexAttribArray(colorAttrib);
 
   srand(time(NULL));
   // Enter the event loop and handle a few key events
@@ -221,11 +247,10 @@ int main() {
 
     /**
      * Here if we want, we can grab a reference to the fragment shader's uniform
-     * and set its color with our application code
+     * (if we were coloring this way) and set its color with our application code
      */
-    GLint fragUniformReference = glGetUniformLocation(shaderProgram, "triangleColor");
-    glUniform3f(fragUniformReference, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX);
-    std::cout << rand() << std::endl;
+    // GLint fragUniformReference = glGetUniformLocation(shaderProgram, "triangleColor");
+    // glUniform3f(fragUniformReference, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX);
 
     // This swaps the back and front buffers on the screen for when we start to draw
     SDL_GL_SwapWindow(window);
