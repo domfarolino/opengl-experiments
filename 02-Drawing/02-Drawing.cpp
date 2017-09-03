@@ -1,5 +1,7 @@
 #include <iostream>
 #include <string>
+#include <cstdlib>
+#include <ctime>
 
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -34,6 +36,10 @@ int main() {
   // This must come after the creation of the SDL window and OpenGL context
   glewExperimental = GL_TRUE;
   glewInit();
+
+  GLuint vao;
+  glGenVertexArrays(1, &vao);
+  glBindVertexArray(vao);
 
   if (!window) {
     std::cout << "Could not open the window: " << SDL_GetError() << std::endl;
@@ -116,11 +122,18 @@ int main() {
   GLint status;
   glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
 
+  // We can also get the compile log which may contain useful information if not errors
+  char shaderCompileBuffer[512];
+  glGetShaderInfoLog(vertexShader, 512, NULL, shaderCompileBuffer);
+
+  std::cout << "Vertex shader log: " << shaderCompileBuffer << std::endl;
+
+  // Check the status
   if (status != GL_TRUE) {
     std::cerr << "Uh oh, the vertex shader failed to compile!!" << std::endl;
     return 1;
   }
-
+ 
   /**
    * The fragment shader takes the information output from the
    * vertex shader, called fragments. Like vertex shader, it has
@@ -130,9 +143,10 @@ int main() {
   const char* fragmentSource = R"glsl(
     #version 150 core
 
+    uniform vec3 triangleColor;
     out vec4 outColor;
     void main() {
-      outColor  = vec4(0.8, 0.8, 0.8, 0.8);
+      outColor = vec4(triangleColor, 1);
     }
   )glsl";
   
@@ -145,8 +159,12 @@ int main() {
   glShaderSource(fragmentShader, 1, &fragmentSource, NULL);
   glCompileShader(fragmentShader);
 
-  // Reuse our old status variable to see if the fragment shader compiled successfully
+  // Reuse our old status variable and log buffer to see if the fragment shader
+  // compiled successfully, and with any messages
   glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+  glGetShaderInfoLog(fragmentShader, 512, NULL, shaderCompileBuffer);
+
+  std::cout << "Fragment shader log: " << shaderCompileBuffer << std::endl;
 
   if (status != GL_TRUE) {
     std::cerr << "Uh oh, the fragment shader failed to compile!!" << std::endl;
@@ -154,10 +172,10 @@ int main() {
   }
 
   /**
-   * As the Drawing polygons section of the open.gl tutorial indicates, the
-   * shaders have only been "programmed" to work together, but have no real
-   * connection to each other. In order to to use them together in the graphics
-   * pipeline, we have to create a shader program consisting of these two shaders.
+   * The shaders we've made have only been designed to work together, but have no
+   * real connection defined in our application. In order to to use them together
+   * in the graphics pipeline, we have to create a shader program consisting of these
+   * two shaders.
    */
   GLuint shaderProgram = glCreateProgram();
   glAttachShader(shaderProgram, vertexShader);
@@ -166,21 +184,25 @@ int main() {
   /**
    * The line of code below is used to specify which output is written to
    * which buffer. This is set to 0 by default and since there is only one
-   * output right now, the following line of code isn't necessary
+   * output right now, the following line of code isn't necessary.
    */
   glBindFragDataLocation(shaderProgram, 0, "outColor");
 
   glLinkProgram(shaderProgram);
   glUseProgram(shaderProgram); // like a VBO, only one program can be active at a time
 
-  GLuint vao;
-  glGenVertexArrays(1, &vao);
-  glBindVertexArray(vao);
-
-  GLint posAttrib = glGetAttribLocation(shaderProgram, "position");
+  /**
+   * OpenGL still doesn't know the format of our vertex attributes, even though the
+   * shaders now have a programatic link to each other given the `shaderProgram` they
+   * are a part of. First we can grab a reference to the position input vector we defined
+   * in our vertex shader. The GLint returned from glGetAttrubuteLocation will be an integer
+   * and the first (and only) input definition will have the number 0.
+   */
+  GLint posAttrib = glGetAttribLocation(shaderProgram, "position"); // 0
   glVertexAttribPointer(posAttrib, 2, GL_FLOAT, GL_FALSE, 0, 0);
   glEnableVertexAttribArray(posAttrib);
 
+  srand(time(NULL));
   // Enter the event loop and handle a few key events
   SDL_Event event;
   int numEvents = 0;
@@ -196,6 +218,15 @@ int main() {
     }
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
+
+    /**
+     * Here if we want, we can grab a reference to the fragment shader's uniform
+     * and set its color with our application code
+     */
+    GLint fragUniformReference = glGetUniformLocation(shaderProgram, "triangleColor");
+    glUniform3f(fragUniformReference, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX, ((double)rand()) / RAND_MAX);
+    std::cout << rand() << std::endl;
+
     // This swaps the back and front buffers on the screen for when we start to draw
     SDL_GL_SwapWindow(window);
   }
