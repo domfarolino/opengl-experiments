@@ -11,3 +11,17 @@ And in the second part we draw two triangles together to form a rectangle. Each 
 us the rainbow effect below:
 
 ![rainbow rect](screenshot1.png)
+
+# Exercises
+
+ - To flip the rectangle (or equivalently the triangle) upside down, I modified the vertex shader to multiply
+   the y position coordinate by -1.
+ - To invert the colors of the rectangle I subtracted `1.0f` from each color component in the fragment shader
+ - To make each vertex have a single color which represents it's shade of gray I removed two of the attributes
+   from each vertex in the array, then varied the third attribute. I then cracked open the vertex shader to ensure
+   that the `in color` and `out Color` were `float`s and not `vec3`s. This makes it a single value we're working with.
+   Changes in the fragment shader must be made in order to accept this `float`, then the we must modify where we set our
+   fragment color in the fragment shader, to use the `in float Color` for the `r`, `g`, and `b` values of the fragment color.
+   This ensures the color is some shade of gray. Finally both our calls to `glVertexAttribPointer` must be modified to represent
+   the new stride and offset. The `stride` changes from `5*sizeof(float)` to `3*sizeof(float)` for both calls, and the `offset`
+   remains unchanged.
