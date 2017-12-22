@@ -1,5 +1,5 @@
 UNAME := $(shell uname)
-CPP=g++
+CXX=g++
 SRCDIR = ./
 
 ifeq ($(UNAME), Linux)
@@ -9,4 +9,4 @@ else
 endif
 
 main:
-	g++ 02-Drawing.cpp $(CFLAGS)
+	$(CXX) 02-Drawing.cpp $(CFLAGS)
