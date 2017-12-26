@@ -1,9 +1,9 @@
 # opengl-experiments
-Repository accompanying me as I learn more about OpenGL, SDL, and GLEW
+Repository accompanying me as I learn more about OpenGL, SDL, and GLEW.
 
 This repository will document my experience learning about building OpenGL programs in C++. For starters, I'm following [this](https://open.gl)
-wonderful tutorial to help me get started. I'm following the guide on the path of using the Simple DirectMedia Library 2 (SDL2) to create nice
-windows and respond to events from the OS, and GLEW to ensure the most modern OpenGL functions available at runtime are being used.
+wonderful tutorial to help me get started. I'm following the guide on the path of using the Simple DirectMedia Library 2 (SDL2) to create windows
+and respond to events from the OS, and GLEW to ensure the most modern OpenGL functions available at runtime are being used.
 
 # Installation & Configuration
 
@@ -12,7 +12,7 @@ The process of installing the aforementioned dependencies (SDL2 and GLEW) vary o
 
 ## Installing SDL2 (macOS)
 
-There are two valid ways to install SDL2 on macOS. The first is seamless and requires no compiling. Go to the
+There are two ways to install SDL2 on macOS. The first is seamless and requires no compiling. Go to the
 [SDL download page](https://www.libsdl.org/download-2.0.php) and downloading the `.dmg` file. Run the `.dmg` file and follow the very simple
 accompanying `ReadMe.txt`.
 
@@ -24,13 +24,13 @@ You can also build it "the Unix way" by cloning the SDL2 source via `hg clone ht
 
 I got SDL2 installed on my Ubuntu machine simply by using `sudo apt-get install libsdl2-dev`. It is then recommended that you adjust the include
 path in your compiler flags so that you can reference `SDL2` code via `#include "SDL.h"` instead of `#include "SDL2/SDL.h"`. For more information
-see https://stackoverflow.com/a/24480415.
+see https://stackoverflow.com/a/24480415 and the Makefiles in this repository.
 
 ## Installing GLEW (macOS)
 
 Apparently GLEW isn't even necessary on macOS
 (see [this](https://stackoverflow.com/a/22116623/3947332) and [this](https://stackoverflow.com/questions/12229714) source) but I know
-I'll probably need to do this on linux anyways so I'm going to roll with it for now.
+I'll probably need to do this on Linux anyways so I'm going to roll with it for now.
 
 This was as simple as:
 
